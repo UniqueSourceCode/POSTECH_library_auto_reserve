@@ -1,3 +1,26 @@
+# ROOM_ID, SEAT_CODE랑 date만 manually 수정하기
+# ROOM_ID : POCUS 3층 : 1
+# POCUS 4층 : 2
+# 서가열람 3층 4인 : 3
+# PLORA 3층 : 4
+# 서가열람 4층 4인 : 5
+# PLORA 4층 : 6
+# 서가열람 3층 1인 : 7
+# 서가열람 4층 1인 : 8
+# 아트리움 3층 : 9
+# 아트리움 4층 : 10
+# 아트리움 5층 : 11
+
+
+from datetime import date
+
+if date.today() > date(2026, 6, 30):
+    print("Script expired. Exiting.")
+    exit()
+
+
+
+
 import requests
 import time
 import os
@@ -8,14 +31,21 @@ import os
 
 BASE_URL = "https://zzim.postech.ac.kr/smufu-api/api"
 ROOM_ID = 6        # Plora 4층
-SEAT_ID = 900      # Seat 22
 SEAT_CODE = "22"
-MAX_RETRIES = 5    # how many times to retry if reservation fails
-RETRY_DELAY = 3    # seconds between retries
+MAX_RETRIES = 5   # how many times to retry if reservation fails
+RETRY_DELAY = 5    # seconds between retries
 
 # ============================================================
 # STEP 1 — LOGIN
 # ============================================================
+
+def getSEAT_ID(session):
+    r = session.get(f"{BASE_URL}/pc/rooms-at-seat/{ROOM_ID}/seats")
+    data = r.json()
+    seat = data["data"].get(SEAT_CODE)
+    if not seat:
+        raise ValueError(f"Seat code {SEAT_CODE!r} not found in room {ROOM_ID}")
+    return seat["id"]
 
 def login(session, pni_token):
     print("\n[1] Logging in...")
@@ -92,7 +122,7 @@ def cancel_reservation(session, reservation_id, state):
         return False
 
 # ============================================================
-# STEP 4 — CHECK IF SEAT 22 IS AVAILABLE
+# STEP 4 — CHECK IF SEAT IS AVAILABLE
 # ============================================================
 
 def is_seat_available(session):
@@ -105,13 +135,17 @@ def is_seat_available(session):
     return False
 
 # ============================================================
-# STEP 5 — RESERVE SEAT 22
+# STEP 5 — RESERVE SEAT
 # ============================================================
 
-def reserve_seat(session):
-    print(f"\n[4] Reserving seat {SEAT_CODE}...")
-    r = session.post(f"{BASE_URL}/pc/seats/{SEAT_ID}/charge-temporarily")
-    data = r.json()
+def reserve_seat(session, seat_id):
+    print(f"\n[4] Reserving seat {SEAT_CODE} (id={seat_id})...")
+    try:
+        r = session.post(f"{BASE_URL}/pc/seats/{seat_id}/charge-temporarily")
+        data = r.json()
+    except Exception as e:
+        print(f"    x Request error: {e}")
+        return False
     if data.get("success"):
         new_id = data["data"]["id"]
         state = data["data"]["seatCirculationState"]["code"]
@@ -161,6 +195,10 @@ def main():
         print("\nLogin failed. Please get a fresh pniToken and try again.")
         return
 
+    # Resolve SEAT_ID dynamically
+    seat_id = getSEAT_ID(session)
+    print(f"\n    Resolved SEAT_ID for seat {SEAT_CODE}: {seat_id}")
+
     # Step 2 - Check existing reservation
     reservation_id, seat_code, state = get_my_reservation(session)
 
@@ -174,12 +212,12 @@ def main():
         print("    Waiting for seat to reset after cancellation...")
         time.sleep(5)
 
-    # Step 4 & 5 - Reserve seat 22 with retries
+    # Step 4 & 5 - Reserve seat with retries
     print(f"\n[4] Attempting to reserve seat {SEAT_CODE} (max {MAX_RETRIES} tries)...")
     for attempt in range(1, MAX_RETRIES + 1):
         print(f"\n    Attempt {attempt}/{MAX_RETRIES}")
 
-        if reserve_seat(session):
+        if reserve_seat(session, seat_id):
             print("\n" + "=" * 50)
             print("  SUCCESS -- Seat reserved!")
             print("=" * 50)
