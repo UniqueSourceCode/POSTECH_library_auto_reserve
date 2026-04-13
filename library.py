@@ -14,7 +14,7 @@
 
 from datetime import date
 
-if date.today() > date(2026, 6, 30):
+if date.today() > date(2026, 4, 20):
     print("Script expired. Exiting.")
     exit()
 
@@ -32,7 +32,7 @@ import os
 BASE_URL = "https://zzim.postech.ac.kr/smufu-api/api"
 ROOM_ID = 6        # Plora 4층
 SEAT_CODE = "22"
-MAX_RETRIES = 5   # how many times to retry if reservation fails
+MAX_RETRIES = 30   # how many times to retry if reservation fails
 RETRY_DELAY = 5    # seconds between retries
 
 # ============================================================
