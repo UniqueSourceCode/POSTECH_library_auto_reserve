@@ -71,7 +71,7 @@ def get_my_reservation(session):
         state = ticket["seatCirculationState"]["code"]
         print(f"    v Found reservation -- Seat {seat_code}, ID: {reservation_id}, State: {state}")
         return reservation_id, seat_code, state
-    else:
+    else:   
         print("    v No current reservation found")
         return None, None, None
 
@@ -136,13 +136,15 @@ def main():
     print("  POSTECH Library Auto-Reservation Script")
     print("=" * 50)
 
-    token_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pniToken.txt")
-    if os.path.exists(token_file):
-        with open(token_file) as f:
-            pni_token = f.read().strip()
-        print(f"\nLoaded pniToken from pniToken.txt")
-    else:
-        pni_token = input("\nPaste your pniToken here:\n> ").strip()
+    pni_token = os.environ.get("PNI_TOKEN")
+    if not pni_token:
+        token_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pniToken.txt")
+        if os.path.exists(token_file):
+            with open(token_file) as f:
+                pni_token = f.read().strip()
+            print(f"\nLoaded pniToken from pniToken.txt")
+        else:
+            pni_token = input("\nPaste your pniToken here:\n> ").strip()
 
     if not pni_token:
         print("No token provided. Exiting.")
