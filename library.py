@@ -1,3 +1,5 @@
+#PNI_TOKEN 얻는 법을 알고싶다면 작성자에게 문의하세요
+
 # ROOM_ID, SEAT_CODE랑 date만 manually 수정하기
 # ROOM_ID : POCUS 3층 : 1
 # POCUS 4층 : 2
