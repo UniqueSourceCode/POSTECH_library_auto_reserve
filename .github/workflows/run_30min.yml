@@ -1,0 +1,16 @@
+name: Library Reservation
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  reserve:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: pip install requests
+      - run: python library.py
+        env:
+          PNI_TOKEN: ${{ secrets.PNI_TOKEN }}
