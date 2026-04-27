@@ -16,5 +16,5 @@ POSTECH 청암 도서관 자동 예약 시스템
 
 
 AI 사용 여부:
-사이트 pniToken security issue를 찾고, 어떤 좌석을 정확히 예약하는 방법은 devTool로 직접해야했습니다.
+사이트 pniToken security issue를 찾고, 어떤 좌석을 정확히 예약하는 방법은 devTool로 확인하고 직접 코드 플로우를 작성하였습니다.
 나머지 손노동만 AI로 대신하였습니다.
